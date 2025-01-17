@@ -358,6 +358,7 @@ const InteractivePlot = () => {
               type="range"
               min="0"
               max="90"
+              step="0.01"
               value={params.distCharAngle}
               onChange={(e) => handleParamChange('distCharAngle', e.target.value)}
               className="w-full"
@@ -371,6 +372,7 @@ const InteractivePlot = () => {
               type="range"
               min="0"
               max="50"
+              step="0.01"
               value={params.X}
               onChange={(e) => handleParamChange('X', e.target.value)}
               className="w-full"
@@ -384,6 +386,7 @@ const InteractivePlot = () => {
               type="range"
               min="0"
               max="50"
+              step="0.01"
               value={params.R}
               onChange={(e) => handleParamChange('R', e.target.value)}
               className="w-full"
@@ -397,6 +400,7 @@ const InteractivePlot = () => {
               type="range"
               min="0"
               max="90"
+              step="0.01"
               value={params.a1Angle}
               onChange={(e) => handleParamChange('a1Angle', e.target.value)}
               className="w-full"
@@ -410,6 +414,7 @@ const InteractivePlot = () => {
               type="range"
               min="0"
               max="90"
+              step="0.01"
               value={params.a2Angle}
               onChange={(e) => handleParamChange('a2Angle', e.target.value)}
               className="w-full"
@@ -423,6 +428,7 @@ const InteractivePlot = () => {
               type="range"
               min="0"
               max="90"
+              step="0.01"
               value={params.inclinationAngle}
               onChange={(e) => handleParamChange('inclinationAngle', e.target.value)}
               className="w-full"
