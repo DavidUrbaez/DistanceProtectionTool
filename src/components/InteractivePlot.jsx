@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import Papa from 'papaparse';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
+import { optimizePolygonSettings, validateOptimizationParams } from '../utils/distanceProtectionOptimizer';
 
-const SiemensChar = (dist_char_angle, X, R, a1_angle = 30, a2_angle = 22, inclination_angle = 0) => {
+export const SiemensChar = (dist_char_angle, X, R, a1_angle = 30, a2_angle = 22, inclination_angle = 0) => {
   // Convert angles to radians
   a1_angle = a1_angle * Math.PI / 180;
   a2_angle = a2_angle * Math.PI / 180;
@@ -80,7 +81,7 @@ const SiemensChar = (dist_char_angle, X, R, a1_angle = 30, a2_angle = 22, inclin
   return data_points.R.map((r, i) => ({ R: r, X: data_points.X[i] }));
 };
 
-const InteractivePlot = () => {
+const InteractivePlot = ({ onOptimize }) => {
   const [data, setData] = useState([]);
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState('');
@@ -96,6 +97,17 @@ const InteractivePlot = () => {
     a2Angle: 22,
     inclinationAngle: 0
   });
+  // Add this function to handle optimization
+  const handleOptimize = () => {
+    // Use the optimizePolygonSettings function
+    const optimizedParams = optimizePolygonSettings(data);
+
+    // Validate and sanitize the optimized parameters
+    const sanitizedParams = validateOptimizationParams(optimizedParams);
+
+    // Update the params state with optimized values
+    setParams(sanitizedParams);
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -439,6 +451,12 @@ const InteractivePlot = () => {
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <svg ref={svgRef} className="w-full" />
         </div>
+        <button
+          onClick={handleOptimize}  // Use the prop passed from App
+          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+        >
+          Optimize Parameters
+        </button>
       </div>
     </div>
   );
