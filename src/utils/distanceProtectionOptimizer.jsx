@@ -1,4 +1,4 @@
-import { SiemensChar } from '../components/InteractivePlot';
+import { SiemensChar } from '../utils/SiemensChar';
 
 // Utility function to calculate polygon area
 const calculatePolygonArea = (points) => {

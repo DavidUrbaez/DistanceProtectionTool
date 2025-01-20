@@ -1,6 +1,8 @@
 // utils/domainCalculator.js
-import { SiemensChar } from '../components/InteractivePlot';
-export const calculateDomains = (zoneParams, FIXED_A1_ANGLE, FIXED_A2_ANGLE) => {
+import { SiemensChar } from '../utils/SiemensChar';
+import { FIXED_A1_ANGLE, FIXED_A2_ANGLE } from '../components/drawPolygons';
+
+export const calculateDomains = (zoneParams) => {
     const allPolygonPoints = [];
     [1, 2, 3].forEach(zone => {
         const params = zoneParams[zone];

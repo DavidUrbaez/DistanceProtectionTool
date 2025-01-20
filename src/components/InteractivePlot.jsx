@@ -4,9 +4,12 @@ import Papa from 'papaparse';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
 
 import { calculateDomains } from '../utils/domainCalculator';
+import { drawScatterPlot } from './drawScatterPlot';
+import { drawPolygons } from './drawPolygons';
+
 // Zone color mapping - Updated to match screenshot
 // Update the zoneColors configuration
-const zoneColors = {
+export const zoneColors = {
   1: {
     fill: '#ef4444',
     stroke: '#ef4444',
@@ -32,57 +35,7 @@ const zoneColors = {
     pointOpacity: 0.8
   }
 };
-export const SiemensChar = (dist_char_angle, X, R, a1_angle = 30, a2_angle = 22, inclination_angle = 0) => {
-  // Convert angles to radians
-  a1_angle = a1_angle * Math.PI / 180;
-  a2_angle = a2_angle * Math.PI / 180;
-  dist_char_angle = dist_char_angle * Math.PI / 180;
-  inclination_angle = inclination_angle * Math.PI / 180;
 
-  // Initialize data points
-  const data_points = {
-    R: [0],
-    X: [0]
-  };
-
-  // Second coordinate
-  let r = -X * Math.tan(a1_angle);
-  data_points.R.push(r);
-  data_points.X.push(X);
-
-  // Third coordinate
-  if (inclination_angle === 0) {
-    r = X / Math.tan(dist_char_angle) + R;
-  } else {
-    r = X / Math.tan(dist_char_angle);
-  }
-  data_points.R.push(r);
-  data_points.X.push(X);
-
-  // Fourth coordinate
-  let x;
-  if (inclination_angle === 0) {
-    r = R * (1 - Math.tan(a2_angle) / (Math.tan(a2_angle) + Math.tan(dist_char_angle)));
-    x = -R * (Math.tan(a2_angle) * Math.tan(dist_char_angle)) / (Math.tan(a2_angle) + Math.tan(dist_char_angle));
-  } else {
-    r = X / Math.tan(dist_char_angle) + R * (
-      1 - Math.tan(inclination_angle) / (Math.tan(inclination_angle) + Math.tan(dist_char_angle)));
-    x = X - R * (Math.tan(inclination_angle) * Math.tan(dist_char_angle)) / (
-      Math.tan(inclination_angle) + Math.tan(dist_char_angle));
-  }
-  data_points.R.push(r);
-  data_points.X.push(x);
-
-  // Fifth coordinate
-  if (inclination_angle !== 0) {
-    r = R * (1 - Math.tan(a2_angle) / (Math.tan(a2_angle) + Math.tan(dist_char_angle)));
-    x = -R * (Math.tan(a2_angle) * Math.tan(dist_char_angle)) / (Math.tan(a2_angle) + Math.tan(dist_char_angle));
-    data_points.R.push(r);
-    data_points.X.push(x);
-  }
-
-  return data_points.R.map((r, i) => ({ R: r, X: data_points.X[i] }));
-};
 
 const InteractivePlot = () => {
   const [data, setData] = useState([]);
@@ -92,11 +45,6 @@ const InteractivePlot = () => {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
   const [selectedZone, setSelectedZone] = useState(null);
-
-  // Separate parameters for each zone
-  // Fixed angles
-  const FIXED_A1_ANGLE = 30;
-  const FIXED_A2_ANGLE = 22;
 
   const [zoneParams, setZoneParams] = useState({
     1: {
@@ -236,7 +184,8 @@ const InteractivePlot = () => {
       .attr('height', height);
 
     svg.selectAll('*').remove();
-    const { xDomain, yDomain } = calculateDomains(zoneParams, FIXED_A1_ANGLE, FIXED_A2_ANGLE);
+
+    const { xDomain, yDomain } = calculateDomains(zoneParams);
 
     //const xDomain = [-maxValue * 0.5, maxValue];
     //const yDomain = [-maxValue * 0.5, maxValue];
@@ -257,8 +206,6 @@ const InteractivePlot = () => {
     const clippedGroup = g.append('g')
       .attr('class', 'clipped-content');
 
-    const unclippedGroup = g.append('g')
-      .attr('class', 'unclipped-content');
 
     // Apply clip path only to the clipped group
     svg.append('defs')
@@ -329,50 +276,11 @@ const InteractivePlot = () => {
       .y(d => yScale(d.X))
       .curve(d3.curveLinearClosed);
 
-    // Draw polygons for each zone
-    // Then update the polygon rendering code in your useEffect:
-    [3, 2, 1].forEach(zone => {
-      const params = zoneParams[zone];
-      const polygonPoints = SiemensChar(
-        params.distCharAngle,
-        params.X,
-        params.R,
-        FIXED_A1_ANGLE,
-        FIXED_A2_ANGLE,
-        params.inclinationAngle
-      );
 
-      contentGroup.append('path')
-        .datum(polygonPoints)
-        .attr('d', lineGenerator)
-        .attr('fill', zoneColors[zone].fill)
-        .attr('fill-opacity', zoneColors[zone].polygonOpacity)  // Set polygon transparency
-        .attr('stroke', zoneColors[zone].stroke)
-        .attr('stroke-width', 1)
-        .style('opacity', selectedZone === null || selectedZone === zone ? 1 : 0.2);
-    });
+    drawPolygons({ contentGroup, zoneParams, xScale, yScale, selectedZone });
+    drawScatterPlot({ contentGroup, data, xScale, yScale, selectedZone });
 
-    // Update the scatter plot points rendering:
-    if (data.length > 0) {
-      const groupedData = d3.group(data, d => d.Zone);
-
-      groupedData.forEach((points, zone) => {
-        const color = zoneColors[zone] || zoneColors.default;
-
-        contentGroup.selectAll(`circle.zone-${zone}`)
-          .data(points)
-          .join('circle')
-          .attr('class', `zone-${zone}`)
-          .attr('cx', d => xScale(d.R))
-          .attr('cy', d => yScale(d.X))
-          .attr('r', 2)
-          .attr('fill', color.fill)
-          .attr('fill-opacity', color.pointOpacity)  // Set point transparency
-          .attr('stroke', color.stroke)
-          .attr('stroke-width', 0.5)
-          .attr('opacity', selectedZone === null || selectedZone === zone ? 1 : 0.2);
-      });
-    }// Rest of your code remains the same, but make sure to update the zoom handler:
+    // Rest of your code remains the same, but make sure to update the zoom handler:
     const zoom = d3.zoom()
       .scaleExtent([0.5, 20])
       .on('zoom', (event) => {
