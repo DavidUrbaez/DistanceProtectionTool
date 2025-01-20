@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import Papa from 'papaparse';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
 
+import { calculateDomains } from '../utils/domainCalculator';
 // Zone color mapping - Updated to match screenshot
 // Update the zoneColors configuration
 const zoneColors = {
@@ -235,31 +236,10 @@ const InteractivePlot = () => {
       .attr('height', height);
 
     svg.selectAll('*').remove();
-    // ---------------------------------------------------------------------------------
-    // XY Domain usage: Calculate all polygon points first
-    const allPolygonPoints = [];
-    [1, 2, 3].forEach(zone => {
-      const params = zoneParams[zone];
-      const points = SiemensChar(
-        params.distCharAngle,
-        params.X,
-        params.R,
-        FIXED_A1_ANGLE,
-        FIXED_A2_ANGLE,
-        params.inclinationAngle
-      );
-      allPolygonPoints.push(...points);
-    });
+    const { xDomain, yDomain } = calculateDomains(zoneParams, FIXED_A1_ANGLE, FIXED_A2_ANGLE);
 
-    //XY Domain usage:  Find max absolute values and multiply by 1.5
-    const maxR = Math.max(...allPolygonPoints.map(p => Math.abs(p.R))) * 1.5;
-    const maxX = Math.max(...allPolygonPoints.map(p => Math.abs(p.X))) * 1.5;
-
-    // XY Domain usage: Use the larger of the two maxes to maintain aspect ratio
-    const maxValue = Math.max(maxR, maxX);
-    // If any issue above just force XY Domain. 
-    const xDomain = [-maxValue * 0.5, maxValue];
-    const yDomain = [-maxValue * 0.5, maxValue];
+    //const xDomain = [-maxValue * 0.5, maxValue];
+    //const yDomain = [-maxValue * 0.5, maxValue];
     // ---------------------------------------------------------------------------------
 
     const xScale = d3.scaleLinear()
