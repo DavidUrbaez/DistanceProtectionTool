@@ -17,11 +17,11 @@ function App() {
         </h1>
         <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
 
-          <div class="p-6 bg-gradient-to-r from-blue-500 to-blue-600">
-            <h2 class="text-2xl font-bold text-white">
+          <div className="p-6 bg-gradient-to-r from-blue-500 to-blue-600">
+            <h2 className="text-2xl font-bold text-white">
               Distance Protection Visualization
             </h2>
-            <p class="mt-1 text-blue-100">
+            <p className="mt-1 text-blue-100">
               Upload your CSV file with R and X coordinates
             </p>
           </div>

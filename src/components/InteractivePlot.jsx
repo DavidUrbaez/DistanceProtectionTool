@@ -383,6 +383,7 @@ const InteractivePlot = ({ data }) => {
         Optimize Parameters
       </button>
     </div>
+
   );
 };
 
