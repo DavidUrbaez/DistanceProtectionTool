@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { zoneColors } from '../components/InteractivePlot';
+import { zoneColors } from './InteractivePlot';
 // components/ScatterPlot.js
 export const drawScatterPlot = ({ contentGroup, data, xScale, yScale, selectedZone }) => {
     if (data.length > 0) {

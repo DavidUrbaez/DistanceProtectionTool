@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import Papa from 'papaparse';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
 
+
+export const handleParsedData = (parsedData) => {
+    setData(parsedData); // Update the component's data state
+    setError(''); // Clear any existing errors
+};
 export const CSVUpload = ({ onDataParsed }) => {
     const [data, setData] = useState([]);
     const [fileName, setFileName] = useState('');
